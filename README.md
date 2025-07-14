@@ -1,4 +1,7 @@
-### Traceability Graph for Git
+### TRACEABILITY and FORMALISATION
+This repository serves as the formal and traceable source of truth for the machine’s CAD, PLC, and electrical design.
+
+##  
 
 ```mermaid
 
@@ -16,13 +19,13 @@ flowchart TD
 
 ---
 
-### Project Repository Structure  
-
+## Project Repository Structure 
+SYS PLC ELE CAD -> SPEC
 ```
 📦 BB9-PLM/							
 ├── 📘 README.md                     ← 🧭 Everything what you see here :)
 │
-├── 📁 SYS/                          ← Everything which describes the System
+├── 📁 SYS/                          ← Everything which describes the System and it's FORMAL
 │   ├── 📘 instruction1.md
 │   └── 📘 instruction2.md
 │
@@ -38,7 +41,7 @@ flowchart TD
 ├── 📁 CAD/                    		  ← CAD documentation, note that the icon is an ice-cube which is fun
 │   ├── 🧊 MACHINE_BB9_assembly	.stl  ← SNAPSHOTS 
 │   ├── 🧊 EQ_BB9_assembly.stl
-	├──	🧊 P_40x40_profile.stl		
+│	├──	🧊 P_40x40_profile.stl		
 │   ├── 📗 req_cross_sections.csv
 │	├──	📗 req_materials.csv
 │	└── 📗 BOM.csv
