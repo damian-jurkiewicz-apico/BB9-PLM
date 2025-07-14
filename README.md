@@ -56,6 +56,6 @@ flowchart TD
 │         └── ⚽ automation1.yml
 │         └── 
 │
-├── 📘 IO_mapping_table.csv	           ← GLUE, everything which integrates data from the SPEC folders togheter
+└── 📘 IO_mapping_table.csv	           ← GLUE, everything which integrates data from the SPEC folders togheter
 
 
