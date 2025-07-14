@@ -28,35 +28,39 @@ flowchart TD
 ### Project Repository Structure 
 
 ```
-📦 cnc-machine-plm/
-├── 📘 README.md                   ← 🧭 Main entry: stack, traceability, structure
+📦 BB9-PLM/
+├── 📘 README.md                   ← 🧭 Everything what you see here :)
 │
-├── 📁 plc/                        ← 💡 PLC logic (Structured Text, SFC)
-│   ├── 📝 main.st
-│   └── 📝 motion_axis_x.st
+├── 📁 SYS/                        ← Everything which describes the System
+│   ├── 📘 instruction1.md
+│   └── 📘 instruction2.md
 │
-├── 📁 fusion/                     ← 📐 Fusion 360 exports
-│   ├── 📊 bom_2025-07-10.csv      ← Bill of Materials
-│   ├── 📊 sketch_areas.csv        ← Areas and moments of inertia
-│   └── 📊 sensor_locations.csv    ← Sensor positions (optional)
+├── 📁 PLC/                         ← PLC Dragons
+│   ├── 🐲 BB9-Seedra-4024          ← Complete PLC Project
+│   ├──  
+│   └── 
 │
-├── 📁 requirements/               ← 📑 Engineering requirements (Markdown)
-│   ├── 📄 CTX_TABLE_R5.md
-│   └── 📄 EQ_FRAME_BASE.md
+├── 📁 ELE/               			← Electrical documentation from an external supplier
+│   ├── ⚡ Electrical_documentation
+│   └── 
 │
-├── 📁 mermaid/                    ← 🧠 System diagrams & traceability maps
-│   ├── 📄 system_overview.md      ← e.g. BOM → Jira → Code
-│   └── 📄 motion_interfaces.mmd
-│
-├── 📁 scripts/                    ← 🛠 Automation scripts
+├── 📁 CAD/                    		← CAD documentation, note that the icon is an ice-cube which is fun
+│   ├── 🧊 BB9_assembly.3df
+│	├── 📚 [BB-PLM-CAD](https://docs.google.com/spreadsheets/d/1WS5pffsgcz1e94PknavtNsX5TzpDEnNWbKK66kptzpY/edit?usp=sharing)
+│   ├── 📗 req_cross_sections.csv
+│	├──	📗 req_materials.csv
+│	└── 📗 BOM.csv
+│   │
+│	📁 fusion_API_scripts/         ← Automation scripts for the Fusion 
 │   ├── 🐍 export_sketch_area.py
-│   └── 🐍 export_bom.py
+│   └── 🐍 export_bom.py/   
 │
-├── 📁 io/                         ← 🔌 PLC IO signal mapping
-│   ├── 📊 io_mapping.csv          ← IO table: %I / %Q ↔ components
-│   └── 📄 io_links.md             ← Links between IO, CAD, and REQ
 │
-└── 📁 docs/                       ← 📎 Reference files (optional)
-    ├── 📄 electrical_layout.pdf   ← Electrical schematic (external)
-    └── 📄 actuator_specs.pdf
+├── 📁 .github/                    ← Automation scripts for the Github actions
+│    └── 📁 Workflows
+│    	 └── ⚽ automation1.yml		
+│		 └──  
+│
+├── 📘 IO_mapping_table.csv			← GLUE, everything which integrates data from the SPEC folders togheter
+
 ```
