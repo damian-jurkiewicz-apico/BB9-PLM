@@ -43,7 +43,7 @@ def run(context):
                     )
 
         desktop_path = os.path.expanduser("~/Desktop")
-        filename = os.path.join(desktop_path, "cross_sections.csv")
+        filename = os.path.join(desktop_path, "component_cross_sections.csv")
         with open(filename, "w", encoding="utf-8") as f:
             f.write(result)
 

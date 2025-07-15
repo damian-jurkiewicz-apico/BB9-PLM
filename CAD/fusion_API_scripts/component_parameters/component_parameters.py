@@ -49,7 +49,7 @@ def run(context):
 
         # --- EXPORT TO DESKTOP ---
         desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-        file_path = os.path.join(desktop_path, 'parameters_export.csv')
+        file_path = os.path.join(desktop_path, 'component_parameters.csv')
 
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['Component', 'ParameterType', 'FullName', 'Name', 'Value', 'Unit', 'Expression', 'Configured']
