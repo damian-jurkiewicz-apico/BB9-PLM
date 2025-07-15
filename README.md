@@ -20,7 +20,7 @@ flowchart TD
 ---
 
 ## Project Repository Structure 
-SYS PLC ELE CAD -> SPEC
+[S]YS [P]LC [E]LE [C]AD -> SPEC
 ```
 📦 BB9-PLM/	
 ├── 📘 README.md                     ← 🧭 Everything what you see here :)
@@ -38,7 +38,7 @@ SYS PLC ELE CAD -> SPEC
 │   ├── ⚡ Electrical_documentation
 │   └── 
 │
-├── 📁 CAD/                    	      ← CAD documentation, note that the icon is an ice-cube which is fun
+├── 📁 CAD/                    	      ← CAD documentation
 │   ├── 🧊 MACHINE_BB9_assembly	.stl  ← SNAPSHOTS 
 │   ├── 🧊 EQ_BB9_assembly.stl
 │   ├──	🧊 P_40x40_profile.stl
@@ -46,7 +46,7 @@ SYS PLC ELE CAD -> SPEC
 │   ├──	📗 req_materials.csv
 │   └── 📗 BOM.csv
 │   │
-│   📁 fusion_API_scripts/           ← Automation scripts for the Fusion to export .csv files
+│   📁 fusion_API_scripts/           ← Automation scripts for the Fusion 
 │   ├── 🐍 export_sketch_area.py
 │   └── 🐍 export_bom.py 
 │
@@ -56,6 +56,6 @@ SYS PLC ELE CAD -> SPEC
 │         └── ⚽ automation1.yml
 │         └── 
 │
-├── 📘 IO_mapping_table.csv	           ← GLUE, everything which integrates data from the SPEC folders togheter
+└── 📘 IO_mapping_table.csv	           ← GLUE, everything which integrates data from the SPEC folders togheter
 
 
