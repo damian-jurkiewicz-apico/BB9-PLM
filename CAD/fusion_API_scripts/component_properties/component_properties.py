@@ -32,6 +32,64 @@ def run(context):
                 'Thermal Conductivity [W/m·K]', 'Thermal Expansion [1/K]'
             ])
 
+            # Export data for the root component itself
+            props = root.physicalProperties
+            com = props.centerOfMass.asArray()
+            inertia = props.getPrincipalMomentsOfInertia()
+            material = root.material.name if root.material else "N/A"
+            mat = root.material
+
+            bbox = root.boundingBox
+            size_x = bbox.maxPoint.x - bbox.minPoint.x
+            size_y = bbox.maxPoint.y - bbox.minPoint.y
+            size_z = bbox.maxPoint.z - bbox.minPoint.z
+
+            young_modulus = poisson_ratio = shear_modulus = thermal_cond = thermal_exp = "N/A"
+
+            try:
+                if mat and mat.physicalProperties:
+                    mp = mat.physicalProperties
+                    if mp.youngsModulus:
+                        young_modulus = mp.youngsModulus.value
+                    if mp.poissonsRatio:
+                        poisson_ratio = mp.poissonsRatio
+                    if mp.shearModulus:
+                        shear_modulus = mp.shearModulus.value
+                    if mp.thermalConductivity:
+                        thermal_cond = mp.thermalConductivity.value
+                    if mp.thermalExpansionCoefficient:
+                        thermal_exp = mp.thermalExpansionCoefficient.value
+            except:
+                pass
+
+            writer.writerow([
+                root.name,
+                "(root)",
+                root.name,
+                root.description,
+                root.partNumber,
+                material,
+                round(props.mass, 6),
+                round(props.volume, 6),
+                round(props.density, 6),
+                round(props.area, 6),
+                round(com[0], 6),
+                round(com[1], 6),
+                round(com[2], 6),
+                round(inertia[0], 6),
+                round(inertia[1], 6),
+                round(inertia[2], 6),
+                round(size_x, 6),
+                round(size_y, 6),
+                round(size_z, 6),
+                young_modulus,
+                poisson_ratio,
+                shear_modulus,
+                thermal_cond,
+                thermal_exp
+            ])
+
+            # Export data for all occurrences (subcomponents)
             for occ in root.allOccurrences:
                 props = occ.physicalProperties
                 com = props.centerOfMass.asArray()
@@ -42,28 +100,27 @@ def run(context):
                 mat = comp.material
 
                 bbox = occ.boundingBox
-                size_x = bbox.maxPoint.x - bbox.minPoint.x  # in cm
+                size_x = bbox.maxPoint.x - bbox.minPoint.x
                 size_y = bbox.maxPoint.y - bbox.minPoint.y
                 size_z = bbox.maxPoint.z - bbox.minPoint.z
 
-                # Default values for material properties
                 young_modulus = poisson_ratio = shear_modulus = thermal_cond = thermal_exp = "N/A"
 
                 try:
                     if mat and mat.physicalProperties:
                         mp = mat.physicalProperties
                         if mp.youngsModulus:
-                            young_modulus = mp.youngsModulus.value  # in Pa
+                            young_modulus = mp.youngsModulus.value
                         if mp.poissonsRatio:
                             poisson_ratio = mp.poissonsRatio
                         if mp.shearModulus:
-                            shear_modulus = mp.shearModulus.value  # in Pa
+                            shear_modulus = mp.shearModulus.value
                         if mp.thermalConductivity:
                             thermal_cond = mp.thermalConductivity.value
                         if mp.thermalExpansionCoefficient:
                             thermal_exp = mp.thermalExpansionCoefficient.value
                 except:
-                    pass  # keep "N/A" in case of error
+                    pass
 
                 writer.writerow([
                     comp.name,
