@@ -1,5 +1,0 @@
-Component Name,Occurrence Name,Full Path,Description,Part Number,Material,Mass [kg],Volume [cm³],Density [kg/cm³],Surface Area [cm²],CoM X [cm],CoM Y [cm],CoM Z [cm],I1 [kg·cm²],I2 [kg·cm²],I3 [kg·cm²],Size X [cm],Size Y [cm],Size Z [cm],Young's Modulus [Pa],Poisson's Ratio,Shear Modulus [Pa],Thermal Conductivity [W/m·K],Thermal Expansion [1/K]
-MACHINE_BB9 v8,(root),MACHINE_BB9 v8,,Lala,N/A,0.062525,16.009005,0.003906,47.683688,-0.180264,0.184241,0.738266,1,0.088026,0.079828,2.546321,2.937333,1.904,N/A,N/A,N/A,N/A,N/A
-EQ_gantry,EQ_gantry:1,EQ_gantry:1,,EQ_gantry,N/A,0.0,0.0,nan,0.0,0.0,0.0,0.0,1,0.0,0.0,0.0,0.0,0.0,N/A,N/A,N/A,N/A,N/A
-C_motor,C_motor:1,C_motor:1,,C_motor,N/A,0.0,0.0,nan,0.0,0.0,0.0,0.0,1,0.0,0.0,0.0,0.0,0.0,N/A,N/A,N/A,N/A,N/A
-CTX_plate v2,CTX_plate v2:1,CTX_plate v2:1,,CTX_plate,Steel,0.029419,3.747671,0.00785,15.270355,-0.383117,0.391568,0.5,1,0.027918,0.014126,2.120409,1.771097,1.002,N/A,N/A,N/A,N/A,N/A
