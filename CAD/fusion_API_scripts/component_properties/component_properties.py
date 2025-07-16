@@ -22,8 +22,8 @@ def run(context):
         with open(output_file, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([
-                'Component Name', 'Occurrence Name', 'Full Path', 'Parent Component',
-                'Description', 'Part Number', 'Material',
+                'Part Number', 'Component Name', 'Occurrence Name', 'Full Path', 'Parent Component',
+                'Description', 'Material',
                 'Mass [kg]', 'Volume [cm³]', 'Density [kg/cm³]', 'Surface Area [cm²]',
                 'CoM X [cm]', 'CoM Y [cm]', 'CoM Z [cm]',
                 'I1 [kg·cm²]', 'I2 [kg·cm²]', 'I3 [kg·cm²]',
@@ -123,12 +123,12 @@ def run(context):
 
 
                 writer.writerow([
+                    comp.partNumber,
                     comp.name,
                     occ.name,
                     occ.fullPathName,
                     parent_name,
                     comp.description,
-                    comp.partNumber,
                     material,
                     round(props.mass, 6),
                     round(props.volume, 6),

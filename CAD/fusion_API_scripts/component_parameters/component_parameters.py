@@ -23,7 +23,7 @@ def run(context):
             user_params = design.userParameters
             for p in user_params:
                 export_data.append({
-                    "Component": comp_name,
+                    "Component Name": comp_name,
                     "ParameterType": "User",
                     "FullName": f"{comp_name}.{p.name}",
                     "Name": p.name,
@@ -37,7 +37,7 @@ def run(context):
             model_params = comp.modelParameters
             for mp in model_params:
                 export_data.append({
-                    "Component": comp_name,
+                    "Component Name": comp_name,
                     "ParameterType": "Model",
                     "FullName": f"{comp_name}.{mp.name}",
                     "Name": mp.name,
@@ -52,7 +52,7 @@ def run(context):
         file_path = os.path.join(desktop_path, 'component_parameters.csv')
 
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['Component', 'ParameterType', 'FullName', 'Name', 'Value', 'Unit', 'Expression', 'Configured']
+            fieldnames = ['Component Name', 'ParameterType', 'FullName', 'Name', 'Value', 'Unit', 'Expression', 'Configured']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for row in export_data:
