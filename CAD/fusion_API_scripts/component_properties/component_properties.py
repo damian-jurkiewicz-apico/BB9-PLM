@@ -22,7 +22,7 @@ def run(context):
         with open(output_file, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow([
-                'Component Name', 'Occurrence Name', 'Full Path',
+                'Component Name', 'Occurrence Name', 'Full Path', 'Parent Component',
                 'Description', 'Part Number', 'Material',
                 'Mass [kg]', 'Volume [cm³]', 'Density [kg/cm³]', 'Surface Area [cm²]',
                 'CoM X [cm]', 'CoM Y [cm]', 'CoM Z [cm]',
@@ -32,7 +32,7 @@ def run(context):
                 'Thermal Conductivity [W/m·K]', 'Thermal Expansion [1/K]'
             ])
 
-            # Export data for the root component itself
+            # Root component
             props = root.physicalProperties
             com = props.centerOfMass.asArray()
             inertia = props.getPrincipalMomentsOfInertia()
@@ -45,7 +45,6 @@ def run(context):
             size_z = bbox.maxPoint.z - bbox.minPoint.z
 
             young_modulus = poisson_ratio = shear_modulus = thermal_cond = thermal_exp = "N/A"
-
             try:
                 if mat and mat.physicalProperties:
                     mp = mat.physicalProperties
@@ -66,6 +65,7 @@ def run(context):
                 root.name,
                 "(root)",
                 root.name,
+                "(none)",
                 root.description,
                 root.partNumber,
                 material,
@@ -89,12 +89,10 @@ def run(context):
                 thermal_exp
             ])
 
-            # Export data for all occurrences (subcomponents)
             for occ in root.allOccurrences:
                 props = occ.physicalProperties
                 com = props.centerOfMass.asArray()
                 inertia = props.getPrincipalMomentsOfInertia()
-
                 comp = occ.component
                 material = comp.material.name if comp.material else "N/A"
                 mat = comp.material
@@ -105,7 +103,6 @@ def run(context):
                 size_z = bbox.maxPoint.z - bbox.minPoint.z
 
                 young_modulus = poisson_ratio = shear_modulus = thermal_cond = thermal_exp = "N/A"
-
                 try:
                     if mat and mat.physicalProperties:
                         mp = mat.physicalProperties
@@ -122,10 +119,14 @@ def run(context):
                 except:
                     pass
 
+                parent_name = root.name if occ.assemblyContext is None else occ.assemblyContext.component.name
+
+
                 writer.writerow([
                     comp.name,
                     occ.name,
                     occ.fullPathName,
+                    parent_name,
                     comp.description,
                     comp.partNumber,
                     material,
@@ -150,7 +151,6 @@ def run(context):
                 ])
 
         ui.messageBox(f'Export completed: {output_file}')
-
     except:
         if ui:
             ui.messageBox('Error:\n{}'.format(traceback.format_exc()))
