@@ -26,7 +26,7 @@ flowchart TD
 ├── 📘 README.md                     ← 🧭 Everything what you see here :)
 │
 ├── 📁 SYS/                          ← Everything which describes the System and it's FORMAL
-│   ├── 📘 instruction1.md
+│   ├── 📘 naming_convetions.md
 │   └── 📘 instruction2.md
 │
 ├── 📁 PLC/                          ← PLC Dragons
