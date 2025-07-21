@@ -18,7 +18,7 @@ def run(context):
 
         for comp in design.allComponents:
             for sketch in comp.sketches:
-                if not sketch.name.startswith("req"):
+                if not sketch.name.startswith("BB9REQ"):
                     continue
 
                 for i, profile in enumerate(sketch.profiles):
