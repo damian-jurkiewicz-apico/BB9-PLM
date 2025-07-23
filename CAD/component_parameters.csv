@@ -1,0 +1,8 @@
+Component Name,ParameterType,FullName,Name,Value,Unit,Expression,Configured
+EQ_Chassis v7,Model,EQ_Chassis v7.d2,d2,-1.5707963267948966,deg,-90.0 deg,No
+EQ_Chassis v7,Model,EQ_Chassis v7.d3,d3,0.0,mm,0.00 mm,No
+EQ_Chassis v7,Model,EQ_Chassis v7.d4,d4,0.0,mm,0.00 mm,No
+EQ_Chassis v7,Model,EQ_Chassis v7.d5,d5,0.0,mm,0.00 mm,No
+EQ_Chassis v7,Model,EQ_Chassis v7.d6,d6,0.0,mm,0.00 mm,No
+C_Profile_1000mm v7,Model,C_Profile_1000mm v7.Profile_length,Profile_length,100.0,mm,1000.00 mm,No
+C_Profile_1000mm v7,Model,C_Profile_1000mm v7.TaperAngle_profile,TaperAngle_profile,0.0,deg,0.0 deg,No

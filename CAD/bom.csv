@@ -1,0 +1,10 @@
+Part Name,MACHINE_BB9
+Working BOM,"as of July 23, 2025 at 1:48:29 PM UTC"
+Exported by,damian.jurkiewicz@apico.ch
+Time of Export,"1:48 PM Jul 23, 2025"
+
+Level,Part Number,Part Name,External Component,Milestone,Description,Item Number,Lifecycle,Revision,State,Quantity,Material Name,Change Order
+1,MACHINE_BB9,MACHINE_BB9,,,,,,,Working,1,Steel
+1.1,EQ_Chassis,EQ_Chassis,External,,,,,,Working,1,Steel
+1.1.1,62965-Z,C_Profile_1000mm,External,,https://www.dold-mechatronik.de/Aluminum-profile-40x40-EI-type-Nut-8-ultra-light-Alu-profile-50mm,,,,Working,2,Aluminum
+1.1.2,60756-1,C_I-TypeConnector,External,,https://www.dold-mechatronik.de/Standard-I-type-connector-groove-8-Only-the-sheet,,,,Working,1,Steel
