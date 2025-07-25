@@ -1,3 +1,4 @@
+
 import adsk.core, adsk.fusion, traceback
 import csv
 import os
@@ -13,34 +14,37 @@ def run(context):
             ui.messageBox("Brak aktywnego modelu typu 'Design'.")
             return
 
-        all_components = design.allComponents
         export_data = []
 
+        root = design.rootComponent
+        root_name = root.name
+        root_part_number = root.partNumber
+
+        # --- GLOBAL USER PARAMETERS ---
+        for p in design.userParameters:
+            export_data.append({
+                "Component Name": root_name,
+                "Part Number": root_part_number,
+                "ParameterType": "User",
+                "FullName": f"{root_name}.{p.name}",
+                "Name": p.name,
+                "Value": p.value,
+                "Unit": p.unit,
+                "Expression": p.expression,
+                "Configured": "No"
+            })
+
+        # --- COMPONENT MODEL PARAMETERS ---
+        all_components = design.allComponents
         for comp in all_components:
             comp_name = comp.name
             part_number = comp.partNumber
 
-            # --- USER PARAMETERS ---
-            user_params = design.userParameters
-            for p in user_params:
-                export_data.append({
-                    "Component Name": comp_name,
-            "Part Number": part_number,
-                    "ParameterType": "User",
-                    "FullName": f"{comp_name}.{p.name}",
-                    "Name": p.name,
-                    "Value": p.value,
-                    "Unit": p.unit,
-                    "Expression": p.expression,
-                    "Configured": "No"
-                })
-
-            # --- MODEL PARAMETERS ---
             model_params = comp.modelParameters
             for mp in model_params:
                 export_data.append({
                     "Component Name": comp_name,
-            "Part Number": part_number,
+                    "Part Number": part_number,
                     "ParameterType": "Model",
                     "FullName": f"{comp_name}.{mp.name}",
                     "Name": mp.name,
