@@ -62,12 +62,12 @@ def run(context):
                 pass
 
             writer.writerow([
+                root.partNumber,
                 root.name,
                 "(root)",
                 root.name,
                 "(none)",
                 root.description,
-                root.partNumber,
                 material,
                 round(props.mass, 6),
                 round(props.volume, 6),
