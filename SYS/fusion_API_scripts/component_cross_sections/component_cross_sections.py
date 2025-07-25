@@ -9,7 +9,7 @@ def run(context):
         design = app.activeProduct
 
         result = (
-    "Component Name,Sketch,ProfileIndex,"
+    "Component Name,Part Number,Sketch,ProfileIndex,"
     "Area [cm²],CentroidX [cm],CentroidY [cm],"
     "Ixx [cm⁴],Iyy [cm⁴],Izz [cm⁴],"
     "Ixy [cm⁴],Iyz [cm⁴],Ixz [cm⁴]\n"
@@ -17,6 +17,7 @@ def run(context):
 
 
         for comp in design.allComponents:
+            part_number = comp.partNumber
             for sketch in comp.sketches:
                 if not sketch.name.startswith("BB9REQ"):
                     continue
@@ -37,7 +38,7 @@ def run(context):
                     Ixz = moments[6]
 
                     result += (
-                        f"{comp.name},{sketch.name},{i},"
+                        f"{comp.name},{part_number},{sketch.name},{i},"
                         f"{area:.10e},{centroidX:.10e},{centroidY:.10e},"
                         f"{Ixx:.10e},{Iyy:.10e},{Izz:.10e},{Ixy:.10e},{Iyz:.10e},{Ixz:.10e}\n"
                     )
