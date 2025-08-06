@@ -1,7 +1,5 @@
-
 import adsk.core, adsk.fusion, traceback
 import csv
-import os
 
 def run(context):
     ui = None
@@ -11,7 +9,7 @@ def run(context):
         design = adsk.fusion.Design.cast(app.activeProduct)
 
         if not design:
-            ui.messageBox("Brak aktywnego modelu typu 'Design'.")
+            ui.messageBox("No active design found.")
             return
 
         export_data = []
@@ -54,10 +52,21 @@ def run(context):
                     "Configured": "No"
                 })
 
-        # --- EXPORT TO DESKTOP ---
-        desktop_path = os.path.join(os.path.expanduser("~"), 'Desktop')
-        file_path = os.path.join(desktop_path, 'component_parameters.csv')
+        # --- FILE SAVE DIALOG ---
+        fileDlg = ui.createFileDialog()
+        fileDlg.isMultiSelectEnabled = False
+        fileDlg.title = "Save parameter CSV"
+        fileDlg.filter = "CSV files (*.csv)"
+        fileDlg.initialFilename = "component_parameters.csv"
+        fileDlg.filterIndex = 0
 
+        dlgResult = fileDlg.showSave()
+        if dlgResult != adsk.core.DialogResults.DialogOK:
+            return  # User cancelled
+
+        file_path = fileDlg.filename
+
+        # --- WRITE TO CSV FILE ---
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['Component Name', 'Part Number', 'ParameterType', 'FullName', 'Name', 'Value', 'Unit', 'Expression', 'Configured']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -65,8 +74,9 @@ def run(context):
             for row in export_data:
                 writer.writerow(row)
 
-        ui.messageBox(f'Parametry wyeksportowane na pulpit:\n{file_path}')
+        ui.messageBox(f'Parameters successfully exported to:\n{file_path}')
 
     except Exception as e:
         if ui:
-            ui.messageBox(f'Błąd skryptu:\n{traceback.format_exc()}')
+            ui.messageBox(f'Script error:\n{traceback.format_exc()}')
+
