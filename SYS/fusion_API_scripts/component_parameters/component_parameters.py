@@ -14,32 +14,13 @@ def run(context):
 
         export_data = []
 
-        root = design.rootComponent
-        root_name = root.name
-        root_part_number = root.partNumber
-
-        # --- GLOBAL USER PARAMETERS ---
-        for p in design.userParameters:
-            export_data.append({
-                "Component Name": root_name,
-                "Part Number": root_part_number,
-                "ParameterType": "User",
-                "FullName": f"{root_name}.{p.name}",
-                "Name": p.name,
-                "Value": p.value,
-                "Unit": p.unit,
-                "Expression": p.expression,
-                "Configured": "No"
-            })
-
-        # --- COMPONENT MODEL PARAMETERS ---
-        all_components = design.allComponents
-        for comp in all_components:
+        # --- Iterate over all components (includes root) ---
+        for comp in design.allComponents:
             comp_name = comp.name
             part_number = comp.partNumber
 
-            model_params = comp.modelParameters
-            for mp in model_params:
+            # --- Model Parameters ---
+            for mp in comp.modelParameters:
                 export_data.append({
                     "Component Name": comp_name,
                     "Part Number": part_number,
@@ -52,7 +33,25 @@ def run(context):
                     "Configured": "No"
                 })
 
-        # --- FILE SAVE DIALOG ---
+        # --- User Parameters (only exist globally, assign to root) ---
+        root = design.rootComponent
+        root_name = root.name
+        root_part_number = root.partNumber
+
+        for up in design.userParameters:
+            export_data.append({
+                "Component Name": root_name,
+                "Part Number": root_part_number,
+                "ParameterType": "User",
+                "FullName": f"{root_name}.{up.name}",
+                "Name": up.name,
+                "Value": up.value,
+                "Unit": up.unit,
+                "Expression": up.expression,
+                "Configured": "No"
+            })
+
+        # --- File save dialog ---
         fileDlg = ui.createFileDialog()
         fileDlg.isMultiSelectEnabled = False
         fileDlg.title = "Save parameter CSV"
@@ -66,7 +65,7 @@ def run(context):
 
         file_path = fileDlg.filename
 
-        # --- WRITE TO CSV FILE ---
+        # --- Write to CSV ---
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['Component Name', 'Part Number', 'ParameterType', 'FullName', 'Name', 'Value', 'Unit', 'Expression', 'Configured']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -79,4 +78,3 @@ def run(context):
     except Exception as e:
         if ui:
             ui.messageBox(f'Script error:\n{traceback.format_exc()}')
-
