@@ -20,7 +20,7 @@ def run(context):
             part_number = comp.partNumber
             for sketch in comp.sketches:
                 # Process only sketches starting with "BB9REQ"
-                if not sketch.name.startswith("BB9REQ"):
+                if not sketch.name.startswith("REQ"):
                     continue
 
                 for i, profile in enumerate(sketch.profiles):
