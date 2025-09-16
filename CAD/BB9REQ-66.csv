@@ -1,0 +1,20 @@
+Symbol[Unit],Value,Equation,Name,Description,Fusion Explanation,Type
+ π,3.141592654,=π,,,,Constant
+n[rpm],7000.00,=n,Minimal rotational speed of the router,,,Measured Value
+P[W],800,=P,Power of the router,,,Measured Value
+d[m],0.02,=d,Router Cutter Bit Diameter,,,Measured Value
+,,,,,,
+,,,,,,
+ω[rad/s],733.04,=n*2*π/60,Rotational speed in radians,,,Unit Conversion
+T[Nm],1.091348181,=P/ω,Maximum possible torque of the router,,,Calculated Value
+F[N],109.1348181,=2*T/d,Maximum possible force of the machining,,,Requirement
+t_min[m],0.0004,=t_min,Minimum material thickness,The smallest remaining wall thickness of the panel at the bottom of the groove after milling. This ensures proper bending of the panel’s wings and flaps while maintaining structural strength. The value is supported by empirical tests.,,
+w_max[m],0.0002,=2*T/d,Maximum permissible deflection,"For the panel’s bottom-groove milling, is defined as 50% of the minimum material thickness. ",https://a360.co/3Iabq3r,Requirement Limit
+L[m],0.6,=L,Longeron length,,,CAD Parameter
+q[N/m],181.8913635,=F/L,Uniformly distributed load,,,Calculated Value
+E[Pa],69000000000,=69*10^9,Young’s modulus of the material,Aluminium EN-AW 6063,,CAD Parameter
+I[cm⁴],7.2604,=I,Area moment of inertia of the cross-section,"cm⁴ - fusion convetion, inherited from an old engineering practice",REQ66-Profil Dold.pdf,CAD Parameter
+w_L[m],0.00000000000012254,=(q*L^4)/(384*E*I),Calculated deflection ,Expected value 0.0003m,,Calculated Value
+FoS,1632126359,=w_max/w_L,Factor of Safety,,,Calculated Value
+ReqFoS,2,=ReqFoS,Required Factor of Safety,,,Calculated Value
+Result,Passed,"=IF(FoS>=ReqFoS,""Passed"",""Failed"")",Factor of Safety Check,,,Check
