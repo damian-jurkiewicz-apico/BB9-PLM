@@ -1,0 +1,47 @@
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu("LaTeX")
+    .addItem("Render selected cell (next column)", "renderLatex")
+    .addItem("Render selected cell (inside)", "renderLatexInCell")
+    .addToUi();
+}
+
+function renderLatex() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var cell = sheet.getActiveCell();
+  var latex = cell.getValue(); // np. "\omega = n \cdot \frac{2\pi}{60}"
+
+  if (!latex || latex.trim() === "") {
+    SpreadsheetApp.getUi().alert("No LaTeX formula found in selected cell!");
+    return;
+  }
+
+  // CodeCogs jako renderer
+  var url = "https://latex.codecogs.com/png.image?" + encodeURIComponent(latex);
+
+  // pobranie obrazka (PNG)
+  var response = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+  var blob = response.getBlob();
+
+  // wstaw obrazek obok komórki
+  var row = cell.getRow();
+  var col = cell.getColumn() + 1;
+  sheet.insertImage(blob, col, row);
+}
+
+function renderLatexInCell() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var cell = sheet.getActiveCell();
+  var latex = cell.getValue();
+
+  if (!latex || latex.trim() === "") {
+    SpreadsheetApp.getUi().alert("No LaTeX formula found in selected cell!");
+    return;
+  }
+
+  // CodeCogs jako renderer
+  var url = "https://latex.codecogs.com/png.image?" + encodeURIComponent(latex);
+
+  // zamień zawartość komórki na formułę =IMAGE()
+  cell.setFormula('=IMAGE("' + url + '")');
+}

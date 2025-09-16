@@ -51,7 +51,7 @@ def run(context):
         fileDlg = ui.createFileDialog()
         fileDlg.title = "Save detailed BOM CSV (occurrences, dims from component definition)"
         fileDlg.filter = "CSV files (*.csv)"
-        fileDlg.initialFilename = "detailed_bom_export.csv"
+        fileDlg.initialFilename = "all_parts.csv"
         fileDlg.isMultiSelectEnabled = False
 
         if fileDlg.showSave() != adsk.core.DialogResults.DialogOK:

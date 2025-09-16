@@ -1,0 +1,39 @@
+function onOpen() {
+  const ui = SpreadsheetApp.getUi();
+  ui.createMenu('CSV')
+    .addItem('Refresh IMPORTDATA', 'refreshAllImportData')
+    .addToUi();
+}
+
+function refreshAllImportData() {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sheets = spreadsheet.getSheets();
+
+  sheets.forEach(sheet => {
+    const range = sheet.getDataRange();
+    const formulas = range.getFormulas();
+
+    for (let row = 0; row < formulas.length; row++) {
+      for (let col = 0; col < formulas[row].length; col++) {
+        let formula = formulas[row][col];
+        if (formula && formula.toUpperCase().startsWith("=IMPORTDATA")) {
+          const cell = sheet.getRange(row + 1, col + 1);
+          const rand = Math.floor(Math.random() * 1000000);
+
+          // Dodaj lub aktualizuj parametr nocache
+          if (formula.includes("&nocache=")) {
+            formula = formula.replace(/&nocache=\d+/, `&nocache=${rand}`);
+          } else {
+            formula = formula.replace(/"\)$/, `&nocache=${rand}")`);
+          }
+
+          cell.setFormula("");
+          Utilities.sleep(150);
+          cell.setFormula(formula);
+        }
+      }
+    }
+  });
+
+  SpreadsheetApp.getUi().alert("IMPORTDATA Refreshed 🚀");
+}
