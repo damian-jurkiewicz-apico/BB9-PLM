@@ -1,9 +1,3 @@
-function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('CSV')
-    .addItem('Refresh IMPORTDATA', 'refreshAllImportData')
-    .addToUi();
-}
 
 function refreshAllImportData() {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();

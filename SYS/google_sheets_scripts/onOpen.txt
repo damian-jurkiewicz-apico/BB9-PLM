@@ -1,0 +1,10 @@
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  ui.createMenu('CSV')
+    .addItem('Refresh  IMPORTDATA', 'refreshAllImportData')
+    .addToUi();
+  ui.createMenu("LaTeX")
+    .addItem("Render selected cell (next column)", "renderLatex")
+    .addItem("Render selected cell (inside)", "renderLatexInCell")
+    .addToUi();
+}
