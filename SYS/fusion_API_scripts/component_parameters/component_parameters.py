@@ -27,8 +27,8 @@ def run(context):
                     "ParameterType": "Model",
                     "FullName": f"{comp_name}.{mp.name}",
                     "Name": mp.name,
-                    "Value": mp.value,
-                    "Unit": mp.unit,
+                    "Value [FusionNativeUnit]": mp.value,
+                    "SetUnit": mp.unit,
                     "Expression": mp.expression,
                     "Configured": "No"
                 })
@@ -45,8 +45,8 @@ def run(context):
                 "ParameterType": "User",
                 "FullName": f"{root_name}.{up.name}",
                 "Name": up.name,
-                "Value": up.value,
-                "Unit": up.unit,
+                "Value [FusionNativeUnit]": up.value,
+                "SetUnit": up.unit,
                 "Expression": up.expression,
                 "Configured": "No"
             })
@@ -67,7 +67,7 @@ def run(context):
 
         # --- Write to CSV ---
         with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = ['Component Name', 'Part Number', 'ParameterType', 'FullName', 'Name', 'Value', 'Unit', 'Expression', 'Configured']
+            fieldnames = ['Component Name', 'Part Number', 'ParameterType', 'FullName', 'Name', 'Value [FusionNativeUnit]', 'SetUnit', 'Expression', 'Configured']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for row in export_data:
