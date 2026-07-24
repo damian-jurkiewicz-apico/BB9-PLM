@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servo Drive S-Curve Tuning Tool</title>
+    <!-- 1. External Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@300;400;500;700&family=Google+Sans+Flex:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0"></script>
+
+    <style>
+        body {
+            font-family: 'Google Sans', 'Roboto', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .katex { font-size: 1.1em; }
+        .math-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Custom scrollbar for beautiful dark UI */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <div class="max-w-7xl mx-auto space-y-8">
+        <header class="text-center space-y-2">
+            <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-indigo-300 bg-clip-text text-transparent">
+                Servo Drive Kinematics Configurator
+            </h1>
+            <p class="text-slate-400 max-w-3xl mx-auto text-sm md:text-base">
+                Advanced parameter tuning utility for servo motion controllers. Simulate and optimize S-Curve motion profiles to balance positioning time, mechanical resonance, and jerk-induced stress.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left column: Sliders and interactive calculations (40% width) -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- CONTROL CARD (SLIDERS) -->
+                <div class="math-card rounded-2xl p-6 shadow-xl">
+                    <h2 class="text-xl font-semibold text-blue-400 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Servo Drive Constraints
+                    </h2>
+                    
+					<div class="space-y-5">
+						<!-- Distance -->
+						<div class="space-y-2">
+							<div class="flex justify-between text-sm">
+								<span class="text-slate-300">Target Distance (<span id="math-L-sym">L</span>)</span>
+								<span class="font-mono text-blue-400" id="val-distance">100 mm</span>
+							</div>
+							<input type="range" id="slide-distance" min="1" max="10000" value="100" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+						</div>
+
+						<!-- V_max -->
+						<div class="space-y-2">
+							<div class="flex justify-between text-sm">
+								<span class="text-slate-300">Velocity Limit (<span id="math-V-sym">V_{max}</span>)</span>
+								<span class="font-mono text-blue-400" id="val-vmax">20 mm/s</span>
+							</div>
+							<input type="range" id="slide-vmax" min="1" max="10000" value="20" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+						</div>
+
+						<!-- A_max -->
+						<div class="space-y-2">
+							<div class="flex justify-between text-sm">
+								<span class="text-slate-300">Acceleration Limit (<span id="math-A-sym">A_{max}</span>)</span>
+								<span class="font-mono text-blue-400" id="val-amax">40 mm/s²</span>
+							</div>
+							<input type="range" id="slide-amax" min="1" max="10000" value="40" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+						</div>
+
+						<!-- Jerk -->
+						<div class="space-y-2">
+							<div class="flex justify-between text-sm">
+								<span class="text-slate-300">Jerk Limit (<span id="math-J-sym">J</span>)</span>
+								<span class="font-mono text-blue-400 font-bold" id="val-jerk">100 mm/s³</span>
+							</div>
+							<input type="range" id="slide-jerk" min="1" max="10000" value="100" class="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+						</div>
+					</div>
+                </div>
+
+                <!-- RESULTS AND LIVE PROOF -->
+                <div class="math-card rounded-2xl p-6 shadow-xl space-y-6">
+                    <h2 class="text-xl font-semibold text-indigo-300 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        Trajectory Execution States
+                    </h2>
+
+                    <!-- Classical profile (Trapezoid) vs S-Curve -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+                            <p class="text-xs text-slate-400 uppercase tracking-wider">Ideal Trapezoidal (J = ∞)</p>
+                            <p class="text-2xl font-bold text-slate-200" id="time-trapez">0.00s</p>
+                            <span class="text-[10px] text-slate-500" id="math-trap-formula"></span>
+                        </div>
+                        <div class="bg-indigo-950/30 p-4 rounded-xl border border-indigo-900/50">
+                            <p class="text-xs text-indigo-300 uppercase tracking-wider">Configured S-Curve</p>
+                            <p class="text-2xl font-bold text-indigo-300" id="time-scurve">0.00s</p>
+                            <span class="text-[10px] text-indigo-400" id="math-scurve-formula"></span>
+                        </div>
+                    </div>
+
+                    <!-- Key mathematical facts calculated live -->
+                    <div class="space-y-4 text-sm border-t border-slate-800 pt-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Jerk phase duration (<span id="math-tj-var">t_j = A/J</span>):</span>
+                            <span class="font-mono text-slate-200" id="calc-tj">0.00s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Constant acceleration duration (<span id="math-ta-var">t_a</span>):</span>
+                            <span class="font-mono text-slate-200" id="calc-ta">0.00s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Constant velocity duration (<span id="math-tv-var">t_v</span>):</span>
+                            <span class="font-mono text-slate-200" id="calc-tv">0.00s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400">Actual peak acceleration (<span id="math-apeak-var">a_{peak}</span>):</span>
+                            <span class="font-mono font-semibold" id="calc-apeak">0.00 mm/s²</span>
+                        </div>
+                        <div class="flex justify-between items-center" id="row-state">
+                            <span class="text-slate-400">Operational regime:</span>
+                            <span class="px-2 py-0.5 rounded text-xs" id="calc-state">-</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right column: Chart and proofs (80% width) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- INTERACTIVE CHART -->
+                <div class="math-card rounded-2xl p-6 shadow-xl relative">
+                    <h2 class="text-xl font-semibold text-slate-200 mb-2">Velocity and Acceleration Profile Analysis</h2>
+                    <p class="text-xs text-slate-400 mb-4">
+                        Solid lines denote the <span class="text-indigo-400 font-bold">configured S-Curve profile</span>; dashed lines denote the <span class="text-emerald-400 font-bold">theoretical trapezoidal limit (J = ∞)</span>.
+                    </p>
+                    <div id="chart-container" class="w-full h-80 bg-slate-950/40 rounded-xl overflow-hidden border border-slate-800"></div>
+                </div>
+
+                <!-- MATHEMATICAL PROOF WITH KATEX -->
+                <div class="math-card rounded-2xl p-6 shadow-xl space-y-4">
+                    <h2 class="text-xl font-semibold text-blue-400">Kinematic Profile Equations</h2>
+                    
+                    <div class="text-sm text-slate-300 space-y-4 leading-relaxed">
+                        <p>
+                            The total positioning time for a fully resolved 7-segment S-Curve motion profile represents the summation of all kinematic phases (4 jerk-limited phases $t_j$, 2 constant acceleration phases $t_a$, and 1 constant velocity phase $t_v$):
+                        </p>
+                        <div id="katex-general-formula" class="py-3 text-center text-lg bg-slate-900/40 rounded-xl border border-slate-800"></div>
+                        
+                        <p class="text-xs text-slate-400">
+                            Based on the specified constraints and target distance, the trajectory generator dynamically resolves to one of the following operational regimes:
+                        </p>
+
+                        <!-- ACTIVE MATHEMATICAL REGIME (DYNAMIC) -->
+                        <div class="space-y-3 font-mono text-xs">
+                            <!-- Case 1: Full profile -->
+                            <div id="case-1-card" class="p-4 rounded-xl border transition-all duration-300">
+                                <span class="text-emerald-400 font-bold flex items-center gap-2">
+                                    <span id="case-1-dot" class="w-2" ></span> REGIME 1: Nominal 7-Segment Profile
+                                </span>
+                                <p class="text-slate-300 mt-1">Distance is sufficient for the drive to achieve both the target velocity limit ($V_{max}$) and acceleration limit ($A_{max}$). Phase durations evaluate to:</p>
+                                <div id="katex-case-1" class="py-2 text-center text-sm"></div>
+                            </div>
+
+                            <!-- Case 2: Distance-limited profile (Capped V) -->
+                            <div id="case-2-card" class="p-4 rounded-xl border transition-all duration-300">
+                                <span class="text-amber-400 font-bold flex items-center gap-2">
+                                    <span id="case-2-dot" class="w-2" ></span> REGIME 2: Velocity-Capped Profile ($t_v = 0$)
+                                </span>
+                                <p class="text-slate-300 mt-1">Distance constraints prevent achieving $V_{max}$. The drive achieves $A_{max}$ only. The acceleration duration $t_a$ is derived via the following quadratic relation:</p>
+                                <div id="katex-case-2" class="py-2 text-center text-sm"></div>
+                            </div>
+
+                            <!-- Case 3: Pure wave (Jerk-Limited) -->
+                            <div id="case-3-card" class="p-4 rounded-xl border transition-all duration-300">
+                                <span class="text-red-400 font-bold flex items-center gap-2">
+                                    <span id="case-3-dot" class="w-2" ></span> REGIME 3: Jerk-Limited Profile ($t_a = 0, t_v = 0$)
+                                </span>
+                                <p class="text-slate-300 mt-1">Target distance $L$ is exceptionally short or the jerk limit $J$ is highly restrictive. The drive achieves neither $A_{max}$ nor $V_{max}$, resulting in a purely continuous triangular acceleration profile:</p>
+                                <div id="katex-case-3" class="py-2 text-center text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // KaTeX initialization for static and general proof blocks
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // Initialize inline rendering globally for elements like $t_j$
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false}
+                ],
+                throwOnError : false
+            });
+
+            katex.render("T_{total} = 4t_j + 2t_a + t_v", document.getElementById("katex-general-formula"), { throwOnError: false });
+            
+            // Rendering operational regime formulas
+            katex.render("t_j = \\frac{A_{max}}{J}, \\quad t_a = \\frac{V_{max}}{A_{max}} - t_j, \\quad t_v = \\frac{L - 2D_{acc}}{V_{max}}", document.getElementById("katex-case-1"), { throwOnError: false });
+            katex.render("t_j = \\frac{A_{max}}{J}, \\quad t_a = \\frac{-3t_j + \\sqrt{t_j^2 + 4\\frac{L}{A_{max}}}}{2}, \\quad t_v = 0", document.getElementById("katex-case-2"), { throwOnError: false });
+            katex.render("t_j = \\sqrt[3]{\\frac{L}{2J}}, \\quad t_a = 0, \\quad t_v = 0, \\quad \\implies \\quad T_{total} = 4\\sqrt[3]{\\frac{L}{2J}}", document.getElementById("katex-case-3"), { throwOnError: false });
+
+            // Rendering mathematical symbols in UI controls
+            katex.render("L", document.getElementById("math-L-sym"));
+            katex.render("V_{max}", document.getElementById("math-V-sym"));
+            katex.render("A_{max}", document.getElementById("math-A-sym"));
+            katex.render("J", document.getElementById("math-J-sym"));
+
+            // Rendering kinematic state variables in results panel
+            katex.render("t_j = A/J", document.getElementById("math-tj-var"));
+            katex.render("t_a", document.getElementById("math-ta-var"));
+            katex.render("t_v", document.getElementById("math-tv-var"));
+            katex.render("a_{peak}", document.getElementById("math-apeak-var"));
+        });
+
+        // UI Controls references
+        const slideDistance = document.getElementById('slide-distance');
+        const slideVmax = document.getElementById('slide-vmax');
+        const slideAmax = document.getElementById('slide-amax');
+        const slideJerk = document.getElementById('slide-jerk');
+
+        const valDistance = document.getElementById('val-distance');
+        const valVmax = document.getElementById('val-vmax');
+        const valAmax = document.getElementById('val-amax');
+        const valJerk = document.getElementById('val-jerk');
+
+        // Core kinematic solver for S-Curve (7-segment) and Trapezoidal profiles
+        function calculateKinematics(L, Vm, Am, J) {
+            // --- 1. TRAPEZOIDAL PROFILE SOLVER (Jerk = Infinity) ---
+            let t_acc_trap = Vm / Am;
+            let d_acc_trap = 0.5 * Am * (t_acc_trap ** 2);
+            let t_total_trap, t_flat_trap;
+
+            if (2 * d_acc_trap > L) {
+                // Profile resolves to triangular due to distance constraints
+                t_acc_trap = Math.sqrt(L / Am);
+                t_flat_trap = 0;
+                t_total_trap = 2 * t_acc_trap;
+            } else {
+                t_flat_trap = (L - 2 * d_acc_trap) / Vm;
+                t_total_trap = 2 * t_acc_trap + t_flat_trap;
+            }
+
+            // --- 2. S-CURVE PROFILE SOLVER (7-Segment Constraint Evaluation) ---
+            let tj = Am / J;
+            let ta = 0;
+            let v_at_accel_peak = J * (tj ** 2); 
+
+            // Evaluate if maximum acceleration is achievable prior to hitting velocity limits
+            if (v_at_accel_peak > Vm) {
+                tj = Math.sqrt(Vm / J);
+                ta = 0;
+            } else {
+                ta = (Vm - v_at_accel_peak) / Am;
+            }
+
+            // Compute total positional delta required to reach target velocity
+            let V_peak_reachable = J * (tj ** 2) + (J * tj * ta);
+            let d_acc = V_peak_reachable * (tj + ta / 2);
+
+            let tv = 0;
+            let actual_tj = tj;
+            let actual_ta = ta;
+            let a_peak = J * tj;
+            let regime_id = 1; // 1: Nominal, 2: Velocity-Capped, 3: Jerk-Limited
+            let state_desc = "";
+
+            if (d_acc * 2 > L) {
+                // Evaluate behavior under restrictive distance constraints
+                const tj_limit = Math.pow(L / (2 * J), 1/3);
+                
+                if (tj_limit < (Am / J)) {
+                    // Regime 3: Purely jerk-limited profile (acceleration limit not reached)
+                    actual_tj = tj_limit;
+                    actual_ta = 0;
+                    a_peak = J * actual_tj;
+                    state_desc = "Jerk-Limited (Triangular Acceleration)";
+                    regime_id = 3;
+                } else {
+                    // Regime 2: Velocity-capped profile (acceleration limit reached, velocity limit pending)
+                    actual_tj = Am / J;
+                    const a_quad = 1;
+                    const b_quad = 3 * actual_tj;
+                    const c_quad = 2 * (actual_tj ** 2) - L / Am;
+                    actual_ta = (-b_quad + Math.sqrt(b_quad**2 - 4 * a_quad * c_quad)) / (2 * a_quad);
+                    a_peak = Am;
+                    state_desc = "Velocity-Capped (Trapezoidal Acceleration)";
+                    regime_id = 2;
+                }
+                tv = 0;
+            } else {
+                // Regime 1: Nominal profile execution
+                tv = (L - 2 * d_acc) / Vm;
+                actual_tj = tj;
+                actual_ta = ta;
+                a_peak = J * tj;
+                state_desc = "Nominal (Complete 7-segment phase)";
+                regime_id = 1;
+            }
+
+            const t_total_scurve = 4 * actual_tj + 2 * actual_ta + tv;
+
+            // Generate discretized data series for D3 trajectory visualization
+            const scurve_points = [];
+            const trap_points = [];
+            
+            // Time and jerk vectors for 7-segment profile integration
+            const scurve_times = [actual_tj, actual_ta, actual_tj, tv, actual_tj, actual_ta, actual_tj];
+            const scurve_jerks = [J, 0, -J, 0, -J, 0, J];
+            
+            let currT = 0, currV = 0, currA = 0, currS = 0;
+            const steps = 150;
+            const dt_scurve = t_total_scurve / steps;
+
+            scurve_points.push({ t: 0, v: 0, a: 0, s: 0 });
+            
+            // Forward integration loop for S-Curve trajectory
+            for (let i = 0; i < 7; i++) {
+                const segT = scurve_times[i];
+                const segJ = scurve_jerks[i];
+                if (segT <= 0) continue;
+
+                const seg_steps = Math.max(1, Math.round((segT / t_total_scurve) * steps));
+                const subDt = segT / seg_steps;
+
+                for (let j = 0; j < seg_steps; j++) {
+                    currS += currV * subDt + 0.5 * currA * (subDt ** 2) + (1/6) * segJ * (subDt ** 3);
+                    currV += currA * subDt + 0.5 * segJ * (subDt ** 2);
+                    currA += segJ * subDt;
+                    currT += subDt;
+                    scurve_points.push({ t: currT, v: currV, a: currA, s: currS });
+                }
+            }
+
+            // Forward integration loop for Trapezoidal trajectory
+            const trap_times = [t_acc_trap, t_flat_trap, t_acc_trap];
+            const trap_accels = [Am, 0, -Am];
+            currT = 0; currV = 0; currA = 0; currS = 0;
+            
+            trap_points.push({ t: 0, v: 0, a: 0, s: 0 });
+            for (let i = 0; i < 3; i++) {
+                const segT = trap_times[i];
+                const segA = trap_accels[i];
+                if (segT <= 0) continue;
+
+                const seg_steps = Math.max(1, Math.round((segT / t_total_trap) * steps));
+                const subDt = segT / seg_steps;
+
+                for (let j = 0; j < seg_steps; j++) {
+                    currS += currV * subDt + 0.5 * segA * (subDt ** 2);
+                    currV += segA * subDt;
+                    currA = segA;
+                    currT += subDt;
+                    trap_points.push({ t: currT, v: currV, a: currA, s: currS });
+                }
+            }
+
+            return {
+                t_trapez: t_total_trap,
+                t_scurve: t_total_scurve,
+                tj: actual_tj,
+                ta: actual_ta,
+                tv: tv,
+                a_peak: a_peak,
+                state_desc: state_desc,
+                regime_id: regime_id,
+                scurve_points: scurve_points,
+                trap_points: trap_points
+            };
+        }
+
+        // Setup and execute D3.js visualization rendering
+        let svg = null;
+        function drawChart(scurve_data, trap_data, max_t) {
+            const container = document.getElementById('chart-container');
+            container.innerHTML = ''; // Flush DOM node for redraw
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            const margin = { top: 20, right: 50, bottom: 40, left: 50 };
+
+            const chartWidth = width - margin.left - margin.right;
+            const chartHeight = height - margin.top - margin.bottom;
+
+            const svgElement = d3.create('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', `0 0 ${width} ${height}`)
+                .attr('style', 'max-width: 100%; height: auto;');
+
+            const g = svgElement.append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            // Configure scale transforms
+            const x = d3.scaleLinear()
+                .domain([0, max_t])
+                .range([0, chartWidth]);
+
+            const max_v = Math.max(
+                d3.max(scurve_data, d => d.v),
+                d3.max(trap_data, d => d.v)
+            ) * 1.1;
+
+            const yV = d3.scaleLinear()
+                .domain([0, max_v])
+                .range([chartHeight, 0]);
+
+            const max_a = Math.max(
+                d3.max(scurve_data, d => Math.abs(d.a)),
+                d3.max(trap_data, d => Math.abs(d.a))
+            ) * 1.2;
+
+            const yA = d3.scaleLinear()
+                .domain([-max_a, max_a])
+                .range([chartHeight, 0]);
+
+            // Append background grid
+            g.append('g')
+                .attr('class', 'grid')
+                .attr('opacity', 0.1)
+                .attr('stroke', '#e2e8f0')
+                .call(d3.axisLeft(yV).tickSize(-chartWidth).tickFormat(''));
+
+            // Render coordinate axes
+            const xAxis = d3.axisBottom(x).ticks(5).tickFormat(d => d + 's');
+            const yVAxis = d3.axisLeft(yV).ticks(5);
+            const yAAxis = d3.axisRight(yA).ticks(5);
+
+            g.append('g')
+                .attr('transform', `translate(0,${chartHeight})`)
+                .attr('color', '#64748b')
+                .call(xAxis);
+
+            g.append('g')
+                .attr('color', '#38bdf8')
+                .call(yVAxis)
+                .append('text')
+                .attr('fill', '#38bdf8')
+                .attr('x', 10)
+                .attr('y', 10)
+                .attr('text-anchor', 'start')
+                .style('font-weight', 'bold')
+                .text('Velocity (mm/s)');
+
+            g.append('g')
+                .attr('transform', `translate(${chartWidth}, 0)`)
+                .attr('color', '#a5b4fc')
+                .call(yAAxis)
+                .append('text')
+                .attr('fill', '#a5b4fc')
+                .attr('x', -10)
+                .attr('y', 10)
+                .attr('text-anchor', 'end')
+                .style('font-weight', 'bold')
+                .text('Accel. (mm/s²)');
+
+            // Construct trajectory line generators
+            const lineV_scurve = d3.line()
+                .x(d => x(d.t))
+                .y(d => yV(d.v))
+                .curve(d3.curveMonotoneX);
+
+            const lineA_scurve = d3.line()
+                .x(d => x(d.t))
+                .y(d => yA(d.a))
+                .curve(d3.curveStepAfter);
+
+            const lineV_trap = d3.line()
+                .x(d => x(d.t))
+                .y(d => yV(d.v));
+
+            const lineA_trap = d3.line()
+                .x(d => x(d.t))
+                .y(d => yA(d.a))
+                .curve(d3.curveStepAfter);
+
+            // Execute SVG path appending for S-Curve profiles
+            g.append('path')
+                .datum(scurve_data)
+                .attr('fill', 'none')
+                .attr('stroke', '#0284c7')
+                .attr('stroke-width', 3)
+                .attr('d', lineV_scurve);
+
+            g.append('path')
+                .datum(scurve_data)
+                .attr('fill', 'none')
+                .attr('stroke', '#6366f1')
+                .attr('stroke-width', 2)
+                .attr('stroke-dasharray', '1 1')
+                .attr('d', lineA_scurve);
+
+            // Execute SVG path appending for Trapezoidal profiles
+            g.append('path')
+                .datum(trap_data)
+                .attr('fill', 'none')
+                .attr('stroke', '#10b981')
+                .attr('stroke-width', 1.5)
+                .attr('stroke-dasharray', '4 4')
+                .attr('d', lineV_trap);
+
+            g.append('path')
+                .datum(trap_data)
+                .attr('fill', 'none')
+                .attr('stroke', '#a7f3d0')
+                .attr('stroke-width', 1)
+                .attr('stroke-dasharray', '4 4')
+                .attr('d', lineA_trap);
+
+            container.appendChild(svgElement.node());
+        }
+
+        // View synchronization pipeline
+        function update() {
+            const L = parseFloat(slideDistance.value);
+            const Vm = parseFloat(slideVmax.value);
+            const Am = parseFloat(slideAmax.value);
+            const J = parseFloat(slideJerk.value);
+
+            // Update DOM parameter readouts
+            valDistance.innerText = L + " mm";
+            valVmax.innerText = Vm + " mm/s";
+            valAmax.innerText = Am + " mm/s²";
+            valJerk.innerText = J + " mm/s³";
+
+            // Execute kinematic solver
+            const res = calculateKinematics(L, Vm, Am, J);
+
+            // Update DOM calculated readouts
+            document.getElementById('time-trapez').innerText = res.t_trapez.toFixed(3) + "s";
+            document.getElementById('time-scurve').innerText = res.t_scurve.toFixed(3) + "s";
+
+            document.getElementById('calc-tj').innerText = res.tj.toFixed(3) + "s";
+            document.getElementById('calc-ta').innerText = res.ta.toFixed(3) + "s";
+            document.getElementById('calc-tv').innerText = res.tv.toFixed(3) + "s";
+            document.getElementById('calc-apeak').innerText = res.a_peak.toFixed(1) + " mm/s²";
+            
+            const stateEl = document.getElementById('calc-state');
+            stateEl.innerText = res.state_desc;
+            if (res.state_desc.includes("Nominal")) {
+                stateEl.className = "px-2 py-0.5 rounded text-xs bg-emerald-950 text-emerald-300 border border-emerald-800";
+            } else {
+                stateEl.className = "px-2 py-0.5 rounded text-xs bg-amber-950 text-amber-300 border border-amber-800";
+            }
+
+            // Execute dynamic DOM highlighting for the matched operational regime
+            const cards = [
+                { id: 'case-1-card', dot: 'case-1-dot', rid: 1, activeClass: 'border-emerald-500/50 bg-emerald-950/20 text-slate-100', dotClass: 'bg-emerald-400 shadow-[0_0_8px_#34d399]' },
+                { id: 'case-2-card', dot: 'case-2-dot', rid: 2, activeClass: 'border-amber-500/50 bg-amber-950/20 text-slate-100', dotClass: 'bg-amber-400 shadow-[0_0_8px_#fbbf24]' },
+                { id: 'case-3-card', dot: 'case-3-dot', rid: 3, activeClass: 'border-red-500/50 bg-red-950/20 text-slate-100', dotClass: 'bg-red-400 shadow-[0_0_8px_#f87171]' }
+            ];
+
+            cards.forEach(c => {
+                const cardEl = document.getElementById(c.id);
+                const dotEl = document.getElementById(c.dot);
+                if (res.regime_id === c.rid) {
+                    cardEl.className = `p-4 rounded-xl border transition-all duration-300 ${c.activeClass}`;
+                    dotEl.className = `inline-block w-2.5 h-2.5 rounded-full mr-2 ${c.dotClass}`;
+                } else {
+                    cardEl.className = 'p-4 rounded-xl border border-slate-800 bg-slate-900/10 text-slate-500 transition-all duration-300';
+                    dotEl.className = 'inline-block w-2.5 h-2.5 rounded-full mr-2 bg-slate-800';
+                }
+            });
+
+            // Dispatch redraw event to D3 visualization
+            const max_t = Math.max(res.t_trapez, res.t_scurve);
+            drawChart(res.scurve_points, res.trap_points, max_t);
+        }
+
+        // Attach event hooks
+        [slideDistance, slideVmax, slideAmax, slideJerk].forEach(slider => {
+            slider.addEventListener('input', update);
+        });
+
+        // Initialize state on mount
+        window.addEventListener('resize', update);
+        update();
+    </script>
+</body>
+</html>
